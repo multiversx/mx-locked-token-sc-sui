@@ -1,50 +1,32 @@
-module token::transfer_rule {
-    use std::option;
-    use sui::tx_context::TxContext;
-    use sui::token::{Self as token, ActionRequest, TokenPolicy, TokenPolicyCap};
+module token::transfer_rule;
 
-    const EWrongRecipient: u64 = 1;
+use sui::token::{Self, TokenPolicy, ActionRequest};
 
-    public struct TransferRule has drop {}
 
-    public struct TransferRuleConfig has store { allowed: address }
+const ETransferActionNotAllowed: u64 = 0;
 
-    public fun add_config<T>(
-        policy: &mut TokenPolicy<T>,
-        cap: &TokenPolicyCap<T>,
-        allowed: address,
-        ctx: &mut TxContext
-    ) {
-        token::add_rule_config<T, TransferRule, TransferRuleConfig>(
-            TransferRule {}, policy, cap, TransferRuleConfig { allowed }, ctx
-        );
-    }
+public struct TransferRule has drop {}
 
-    public fun update_config<T>(
-        policy: &mut TokenPolicy<T>,
-        cap: &TokenPolicyCap<T>,
-        allowed: address
-    ) {
-        let cfg = token::rule_config_mut<T, TransferRule, TransferRuleConfig>(TransferRule {}, policy, cap);
-        cfg.allowed = allowed;
-    }
+const STAKE_CONTRACT: address = @0x69850e056619e84ade85fcade0228c1c6e35f1d94c5ef1d3190bc3b30ee7c594;
+const SAFE_CONTRACT: address = @0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e;
 
-    fun allowed_addr<T>(policy: &TokenPolicy<T>): address {
-        let cfg = token::rule_config<T, TransferRule, TransferRuleConfig>(TransferRule {}, policy);
-        cfg.allowed
-    }
+public fun verify<T>(
+    _: &TokenPolicy<T>,
+    request: &mut ActionRequest<T>,
+    ctx: &mut TxContext,
+) {
+    let recipient_opt = request.recipient();
+    if (!option::is_some(&recipient_opt)) { 
+        abort ETransferActionNotAllowed
+    };
 
-    
-    public fun verify<T>(
-        policy: &TokenPolicy<T>,
-        req: &mut ActionRequest<T>,
-        ctx: &mut TxContext
-    ) {
-        
-        let mut rec_opt = token::recipient(req);
-        let to = option::extract(&mut rec_opt);
-        assert!(to == allowed_addr(policy), EWrongRecipient);
+    let recipient_addr = option::borrow(&recipient_opt);
+    let sender_addr = request.sender();
 
-        token::add_approval<T, TransferRule>(TransferRule {}, req, ctx);
-    }
+    if (*recipient_addr == STAKE_CONTRACT || sender_addr == SAFE_CONTRACT) {
+        token::add_approval(TransferRule {}, request, ctx);
+        return
+    };
+
+    abort ETransferActionNotAllowed
 }
