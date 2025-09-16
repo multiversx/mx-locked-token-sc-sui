@@ -1,11 +1,17 @@
 module token::bridge_token;
 
-use sui::coin::{Self, TreasuryCap};
+use sui::coin::{Self, TreasuryCap, Coin};
 use sui::token::{Self, TokenPolicy, Token, TokenPolicyCap};
+use token::from_coin_rule::{Self, FromCoinRule};
 use token::to_coin_rule::{Self, ToCoinRule};
-use token::transfer_rule::{Self, TransferRule};
 
 public struct BRIDGE_TOKEN has drop {}
+
+public struct BRIDGE_TOKEN_MANAGER has key {
+    id: UID,
+    policy_cap: TokenPolicyCap<BRIDGE_TOKEN>,
+    treasury_cap: TreasuryCap<BRIDGE_TOKEN>,
+}
 
 fun init(witness: BRIDGE_TOKEN, ctx: &mut TxContext) {
     let (treasury_cap, metadata) = coin::create_currency<BRIDGE_TOKEN>(
@@ -22,20 +28,20 @@ fun init(witness: BRIDGE_TOKEN, ctx: &mut TxContext) {
         &treasury_cap,
         ctx,
     );
-    token::add_rule_for_action<BRIDGE_TOKEN, TransferRule>(
-        &mut policy,
-        &policy_cap,
-        token::transfer_action(),
-        ctx,
-    );
     token::add_rule_for_action<BRIDGE_TOKEN, ToCoinRule>(
         &mut policy,
         &policy_cap,
         token::to_coin_action(),
         ctx,
     );
+    token::add_rule_for_action<BRIDGE_TOKEN, FromCoinRule>(
+        &mut policy,
+        &policy_cap,
+        token::from_coin_action(),
+        ctx,
+    );
 
-    transfer_rule::init_config<BRIDGE_TOKEN>(
+    from_coin_rule::init_config<BRIDGE_TOKEN>(
         &mut policy,
         &policy_cap,
         option::none(),
@@ -49,9 +55,14 @@ fun init(witness: BRIDGE_TOKEN, ctx: &mut TxContext) {
         ctx,
     );
 
+    let manager = BRIDGE_TOKEN_MANAGER {
+        id: object::new(ctx),
+        policy_cap,
+        treasury_cap,
+    };
+
     policy.share_policy();
-    transfer::public_transfer(policy_cap, ctx.sender());
-    transfer::public_transfer(treasury_cap, ctx.sender())
+    transfer::share_object(manager);
 }
 
 public fun mint_and_transfer(
@@ -69,19 +80,6 @@ public fun mint_and_transfer(
     token::confirm_with_policy_cap(policy_cap, request, ctx);
 }
 
-public fun transfer_with_policy(
-    policy: &TokenPolicy<BRIDGE_TOKEN>,
-    token: Token<BRIDGE_TOKEN>,
-    recipient: address,
-    ctx: &mut TxContext,
-) {
-    let mut req = token::transfer(token, recipient, ctx);
-
-    transfer_rule::verify(&mut req, policy, ctx);
-
-    token::confirm_request(policy, req, ctx);
-}
-
 public fun transfer_to_coin_with_policy(
     policy: &TokenPolicy<BRIDGE_TOKEN>,
     token: Token<BRIDGE_TOKEN>,
@@ -95,14 +93,6 @@ public fun transfer_to_coin_with_policy(
     transfer::public_transfer(coin, ctx.sender());
 }
 
-public fun set_stake(
-    policy: &mut TokenPolicy<BRIDGE_TOKEN>,
-    cap: &TokenPolicyCap<BRIDGE_TOKEN>,
-    new_stake: address,
-) {
-    transfer_rule::set_stake_address<BRIDGE_TOKEN>(policy, cap, new_stake)
-}
-
 public fun set_to_coin_allowed(
     policy: &mut TokenPolicy<BRIDGE_TOKEN>,
     cap: &TokenPolicyCap<BRIDGE_TOKEN>,
@@ -110,3 +100,13 @@ public fun set_to_coin_allowed(
 ) {
     to_coin_rule::set_to_coin_allowed<BRIDGE_TOKEN>(policy, cap, option::some(allowed))
 }
+
+public fun set_from_coin_allowed(
+    policy: &mut TokenPolicy<BRIDGE_TOKEN>,
+    cap: &TokenPolicyCap<BRIDGE_TOKEN>,
+    allowed: address,
+) {
+    from_coin_rule::set_from_coin_allowed<BRIDGE_TOKEN>(policy, cap, option::some(allowed))
+}
+
+public fun burn_coin() {}
