@@ -1,32 +1,66 @@
 module token::transfer_rule;
 
-use sui::token::{Self, TokenPolicy, ActionRequest};
-
+use sui::token::{Self as token, ActionRequest, TokenPolicy, TokenPolicyCap};
 
 const ETransferActionNotAllowed: u64 = 0;
+const ERecipientNotSet: u64 = 1;
+const ENotConfigured: u64 = 2;
 
 public struct TransferRule has drop {}
 
-const STAKE_CONTRACT: address = @0x69850e056619e84ade85fcade0228c1c6e35f1d94c5ef1d3190bc3b30ee7c594;
-const SAFE_CONTRACT: address = @0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e;
+public struct TransferRuleConfig has store {
+    stake_address: option::Option<address>,
+}
 
-public fun verify<T>(
-    _: &TokenPolicy<T>,
-    request: &mut ActionRequest<T>,
+public fun init_config<T>(
+    policy: &mut TokenPolicy<T>,
+    cap: &TokenPolicyCap<T>,
+    stake: option::Option<address>,
     ctx: &mut TxContext,
 ) {
+    let cfg = TransferRuleConfig { stake_address: stake };
+    let rule = TransferRule {};
+    token::add_rule_config<_, TransferRule, TransferRuleConfig>(rule, policy, cap, cfg, ctx)
+}
+
+public fun verify<T>(request: &mut ActionRequest<T>, policy: &TokenPolicy<T>, ctx: &mut TxContext) {
     let recipient_opt = request.recipient();
-    if (!option::is_some(&recipient_opt)) { 
+    if (!option::is_some(&recipient_opt)) {
+        abort ERecipientNotSet
+    };
+    let to = *option::borrow(&recipient_opt);
+
+    let cfg = token::rule_config<_, TransferRule, TransferRuleConfig>(TransferRule {}, policy);
+    if (!option::is_some(&cfg.stake_address)) {
+        abort ENotConfigured
+    };
+    let stake = *option::borrow(&cfg.stake_address);
+
+    if (to != stake) {
         abort ETransferActionNotAllowed
     };
 
-    let recipient_addr = option::borrow(&recipient_opt);
-    let sender_addr = request.sender();
+    token::add_approval(TransferRule {}, request, ctx);
+}
 
-    if (*recipient_addr == STAKE_CONTRACT || sender_addr == SAFE_CONTRACT) {
-        token::add_approval(TransferRule {}, request, ctx);
-        return
-    };
+public fun set_stake_address<T>(
+    policy: &mut TokenPolicy<T>,
+    cap: &TokenPolicyCap<T>,
+    stake: address,
+) {
+    let cfg = token::rule_config_mut<_, TransferRule, TransferRuleConfig>(
+        TransferRule {},
+        policy,
+        cap,
+    );
+    cfg.stake_address = option::some(stake)
+}
 
-    abort ETransferActionNotAllowed
+public fun clear_stake_address<T>(policy: &mut TokenPolicy<T>, cap: &TokenPolicyCap<T>) {
+    let cfg = token::rule_config_mut<_, TransferRule, TransferRuleConfig>(
+        TransferRule {},
+        policy,
+        cap,
+    );
+    cfg.stake_address = option::none<address>()
 }
