@@ -32,7 +32,7 @@ public fun verify<T>(request: &mut ActionRequest<T>, policy: &TokenPolicy<T>, ct
         let allowed = *option::borrow(&cfg.allowed);
         let sender = request.sender();
         if (sender != allowed) {
-            abort EToCoinNotAllowed
+            abort EFromCoinNotAllowed
         }
     };
 

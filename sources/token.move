@@ -1,16 +1,20 @@
 module token::bridge_token;
 
-use sui::coin::{Self, TreasuryCap, Coin};
+use sui::coin::{Self, TreasuryCap};
 use sui::token::{Self, TokenPolicy, Token, TokenPolicyCap};
 use token::from_coin_rule::{Self, FromCoinRule};
 use token::to_coin_rule::{Self, ToCoinRule};
 
+const EInvalidSender: u64 = 0;
+
 public struct BRIDGE_TOKEN has drop {}
 
-public struct BRIDGE_TOKEN_MANAGER has key {
+public struct Bridge_Token_Manager has key {
     id: UID,
     policy_cap: TokenPolicyCap<BRIDGE_TOKEN>,
     treasury_cap: TreasuryCap<BRIDGE_TOKEN>,
+    safe_address: Option<address>,
+    stake_address: Option<address>,
 }
 
 fun init(witness: BRIDGE_TOKEN, ctx: &mut TxContext) {
@@ -24,16 +28,19 @@ fun init(witness: BRIDGE_TOKEN, ctx: &mut TxContext) {
         ctx,
     );
     transfer::public_freeze_object(metadata);
+
     let (mut policy, policy_cap) = token::new_policy<BRIDGE_TOKEN>(
         &treasury_cap,
         ctx,
     );
+
     token::add_rule_for_action<BRIDGE_TOKEN, ToCoinRule>(
         &mut policy,
         &policy_cap,
         token::to_coin_action(),
         ctx,
     );
+
     token::add_rule_for_action<BRIDGE_TOKEN, FromCoinRule>(
         &mut policy,
         &policy_cap,
@@ -55,10 +62,12 @@ fun init(witness: BRIDGE_TOKEN, ctx: &mut TxContext) {
         ctx,
     );
 
-    let manager = BRIDGE_TOKEN_MANAGER {
+    let manager = Bridge_Token_Manager {
         id: object::new(ctx),
         policy_cap,
         treasury_cap,
+        safe_address: option::none(),
+        stake_address: option::none(),
     };
 
     policy.share_policy();
@@ -66,31 +75,17 @@ fun init(witness: BRIDGE_TOKEN, ctx: &mut TxContext) {
 }
 
 public fun mint_and_transfer(
-    treasury_cap: &mut TreasuryCap<BRIDGE_TOKEN>,
-    policy_cap: &mut TokenPolicyCap<BRIDGE_TOKEN>,
+    manager: &mut Bridge_Token_Manager,
     amount: u64,
     recipient: address,
     ctx: &mut TxContext,
 ) {
-    let coin = treasury_cap.mint(amount, ctx);
+    let coin = manager.treasury_cap.mint(amount, ctx);
     let (token, req) = token::from_coin(coin, ctx);
-    token::confirm_with_treasury_cap(treasury_cap, req, ctx);
+    token::confirm_with_treasury_cap(&mut manager.treasury_cap, req, ctx);
 
     let request = token::transfer(token, recipient, ctx);
-    token::confirm_with_policy_cap(policy_cap, request, ctx);
-}
-
-public fun transfer_to_coin_with_policy(
-    policy: &TokenPolicy<BRIDGE_TOKEN>,
-    token: Token<BRIDGE_TOKEN>,
-    ctx: &mut TxContext,
-) {
-    let (coin, mut req) = token::to_coin(token, ctx);
-    to_coin_rule::verify(&mut req, policy, ctx);
-
-    token::confirm_request(policy, req, ctx);
-
-    transfer::public_transfer(coin, ctx.sender());
+    token::confirm_with_policy_cap(&manager.policy_cap, request, ctx);
 }
 
 public fun set_to_coin_allowed(
@@ -109,4 +104,49 @@ public fun set_from_coin_allowed(
     from_coin_rule::set_from_coin_allowed<BRIDGE_TOKEN>(policy, cap, option::some(allowed))
 }
 
-public fun burn_coin() {}
+public fun mint_token_transfer(
+    manager: &mut Bridge_Token_Manager,
+    amount: u64,
+    recipient: address,
+    ctx: &mut TxContext,
+) {
+    let sender = tx_context::sender(ctx);
+    if (sender != option::borrow(&manager.safe_address)) {
+        abort EInvalidSender
+    };
+
+    let coin = manager.treasury_cap.mint(amount, ctx);
+    let (token, req) = token::from_coin(coin, ctx);
+    token::confirm_with_treasury_cap(&mut manager.treasury_cap, req, ctx);
+
+    let request = token::transfer(token, recipient, ctx);
+    token::confirm_with_policy_cap(&manager.policy_cap, request, ctx);
+}
+
+public fun burn_token(
+    manager: &mut Bridge_Token_Manager,
+    token: Token<BRIDGE_TOKEN>,
+    ctx: &mut TxContext,
+) {
+    let sender = tx_context::sender(ctx);
+    if (sender != option::borrow(&manager.stake_address)) {
+        abort EInvalidSender
+    };
+    token::burn(&mut manager.treasury_cap, token);
+}
+
+public fun set_safe_address(manager: &mut Bridge_Token_Manager, addr: address) {
+    manager.safe_address = option::some(addr);
+}
+
+public fun set_stake_address(
+    manager: &mut Bridge_Token_Manager,
+    addr: address,
+    ctx: &mut TxContext,
+) {
+    let sender = tx_context::sender(ctx);
+    if (sender != option::borrow(&manager.stake_address)) {
+        abort EInvalidSender
+    };
+    manager.stake_address = option::some(addr);
+}
