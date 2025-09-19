@@ -171,7 +171,7 @@ public fun assert_active_auth<T>(treasury: &Treasury<T>, id: ID) {
 
 /// Checks for a valid ToCoinCap and unwraps the Coin object from the input Token
 public fun to_coin<T>(
-    treasury: &mut Treasury<T>,
+    treasury: &Treasury<T>,
     to_coin_cap: &ToCoinCap<T>,
     input_token: Token<T>,
     ctx: &mut TxContext
@@ -188,7 +188,7 @@ public fun to_coin<T>(
 
 /// Checks for a valid FromCoinCap and wrapps a Coin into a Token
 public fun from_coin<T>(
-    treasury: &mut Treasury<T>,
+    treasury: &Treasury<T>,
     from_coin_cap: &FromCoinCap<T>,
     input_coin: coin::Coin<T>,
     ctx: &mut TxContext
