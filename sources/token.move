@@ -36,3 +36,7 @@ fun init(witness: BRIDGE_TOKEN, ctx: &mut TxContext) {
     transfer::public_share_object(t);
 }
 
+#[test_only]
+public fun init_for_testing(ctx: &mut TxContext) {
+    init(BRIDGE_TOKEN {}, ctx)  // calls the real init that does create_currency, policy, etc.
+}
