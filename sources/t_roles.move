@@ -1,7 +1,6 @@
-module token::roles;
+module locked_token::lk_roles;
 
 use sui::bag::{Self, Bag};
-use sui::event;
 use sui_extensions::two_step_role::{Self, TwoStepRole};
 
 public struct Roles<phantom T> has store {

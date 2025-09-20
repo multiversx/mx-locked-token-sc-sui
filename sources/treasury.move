@@ -1,4 +1,4 @@
-module token::treasury;
+module locked_token::treasury;
 
 use sui::coin::{Self, TreasuryCap};
 use sui::token::{Self as t, Token, TokenPolicyCap};
@@ -6,7 +6,7 @@ use sui::dynamic_object_field as dof;
 use sui::event;
 use sui::table::{Self as table, Table};
 
-use token::roles::{Self as roles, Roles};
+use locked_token::lk_roles::{Self, Roles};
 
 const ENotOwner: u64 = 1;
 const ECapNotAuthorized: u64 = 2;
@@ -58,7 +58,7 @@ public fun new<T>(
     owner: address,
     ctx: &mut TxContext
 ): Treasury<T> {
-    let roles = roles::new(owner, ctx);
+    let roles = lk_roles::new(owner, ctx);
     let mut treasury = Treasury {
         id: object::new(ctx),
         roles,

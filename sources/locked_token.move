@@ -1,8 +1,8 @@
-module token::bridge_token;
+module locked_token::bridge_token;
 
 use sui::coin;
 use sui::token;
-use token::treasury;
+use locked_token::treasury;
 
 
 public struct BRIDGE_TOKEN has drop {}

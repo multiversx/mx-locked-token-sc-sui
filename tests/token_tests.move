@@ -1,4 +1,4 @@
-module token::token;
+module locked_token::locked_token_tests;
 
 use sui::clock::{Self, Clock};
 use sui::object::UID;
