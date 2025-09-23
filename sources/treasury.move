@@ -156,7 +156,9 @@ public fun transfer_ownership<T>(treasury: &mut Treasury<T>, new_owner: address,
 
 
 public fun accept_ownership<T>(treasury: &mut Treasury<T>, ctx: &TxContext) {
-    assert!(treasury.roles.owner() == ctx.sender(), ENotOwner);
+    let pending = treasury.roles.pending_owner();
+
+    assert!(option::is_some(&pending) && option::borrow(&pending) == ctx.sender(), ENotOwner);
 
     treasury.roles.owner_role_mut().accept_role(ctx)
 }
