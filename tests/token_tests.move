@@ -197,3 +197,30 @@ fun two_step_ownership_transfer_works() {
 
     s.end();
 }
+
+#[test, expected_failure(abort_code = tre::EAuthorizationDoesNotExist)]
+fun revoke_authorization_aborts_for_non_existing() {
+    let mut s = setup();
+
+    s.next_tx(DEPLOYER);
+    {
+        let mut t = s.take_shared<Treasury<BRIDGE_TOKEN>>();
+        tre::mint_coin_to_receiver<BRIDGE_TOKEN>(&mut t, 50, DEPLOYER, s.ctx());
+        ts::return_shared(t);
+    };
+
+    // Revoke FromCoinCap and then try to wrap a coin -> should abort
+    s.next_tx(DEPLOYER);
+    {
+        let mut t = s.take_shared<Treasury<BRIDGE_TOKEN>>();
+        let coin_in = s.take_from_sender<coin::Coin<BRIDGE_TOKEN>>();
+
+        let incorrect_from_id = object::id(&coin_in);
+        tre::revoke_authorization<BRIDGE_TOKEN>(&mut t, incorrect_from_id, s.ctx());
+
+        balance::destroy_for_testing(coin::into_balance(coin_in));
+        ts::return_shared(t);
+    };
+
+    s.end();
+}
