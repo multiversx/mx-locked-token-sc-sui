@@ -10,6 +10,7 @@ use locked_token::lk_roles::{Self, Roles};
 
 const ENotOwner: u64 = 1;
 const ECapNotAuthorized: u64 = 2;
+const EAuthorizationDoesNotExist: u64 = 3;
 
 /// Key for retrieving the `TreasuryCap` stored in a `Treasury<T>` dynamic object field
 public struct TreasuryCapKey has copy, store, drop {}
@@ -25,12 +26,6 @@ public struct ToCoinCap<phantom T> has key, store {
 public struct FromCoinCap<phantom T> has key, store {
     id: UID,
 }
-
-/// Object representing the approval key for our ToCoinRule
-public struct ToCoinRule has drop {}
-
-/// Object representing the approval key for our FromCoinRule
-public struct FromCoinRule has drop {}
 
 /* ================== Events ============================ */
 
@@ -131,9 +126,9 @@ public fun revoke_authorization<T>(
     ctx: &mut TxContext
 ) {
     assert!(treasury.roles.owner() == ctx.sender(), ENotOwner);
-    if (table::contains(&treasury.active_authorizations, cap_id)) { 
-        let _ = table::remove(&mut treasury.active_authorizations, cap_id); 
-    }
+    assert!(table::contains(&treasury.active_authorizations, cap_id), EAuthorizationDoesNotExist);
+
+    let _ = table::remove(&mut treasury.active_authorizations, cap_id); 
 }
 
 public fun mint_coin_to_receiver<T>(
@@ -182,7 +177,6 @@ public fun to_coin<T>(
     let (out, mut request) = t::to_coin(input_token, ctx);
 
     let policy = policy_cap_ref(treasury);
-    t::add_approval(ToCoinRule {}, &mut request, ctx);
     t::confirm_with_policy_cap(policy, request, ctx);
 
     out
