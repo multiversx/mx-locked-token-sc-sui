@@ -10,8 +10,6 @@ edition = "2024.beta" # edition = "legacy" to use legacy (pre-2024) Move
 # Revision can be a branch, a tag, and a commit hash.
 # MyRemotePackage = { git = "https://some.remote/host.git", subdir = "remote/path", rev = "main" }
 
-sui_extensions = { git = "https://github.com/circlefin/stablecoin-sui.git", subdir = "packages/sui_extensions", rev = "master" }
-
 # For local dependencies use `local = path`. Path is relative to the package root
 # Local = { local = "../path/to" }
 
@@ -21,6 +19,7 @@ sui_extensions = { git = "https://github.com/circlefin/stablecoin-sui.git", subd
 
 [addresses]
 locked_token = "0x0"
+sui_extensions = "0x1"
 
 # Named addresses will be accessible in Move as `@name`. They're also exported:
 # for example, `std = "0x1"` is exported by the Standard Library.

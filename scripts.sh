@@ -56,8 +56,9 @@ echo
 GAS_BUDGET_DEFAULT=100000000
 
 function mint_tokens() {
-    local AMOUNT=10000000000000000
-    local RECEIVER="0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e"
+    # local AMOUNT=10000000000000000
+    local AMOUNT=1000000000000
+    local RECEIVER="0xca67a608b5305ff4af9da1d5d7ad5bbaf1f3861ec349beff206331d0dd3da08d"
     sui client ptb \
         --move-call "${PACKAGE_ID}::treasury::mint_coin_to_receiver" \
             "<$BRIDGE_TOKEN_TYPE>" \
@@ -130,6 +131,30 @@ function to_coin() {
     else
         echo "Grant done (cap may not show as 'created' if it existed/merged). Inspect grant_to_cap_out.json."
     fi
+}
+
+function transfer_token() {
+    local RECEIVER="0xca67a608b5305ff4af9da1d5d7ad5bbaf1f3861ec349beff206331d0dd3da08d"
+    local FROM_COIN_CAP="0xc3813ace1a61279bcc00d3b59cc75d4cce4f65d5f306bc3c071a62366e2325d4"
+    local COIN_TO_USE="0x52aba9e79a80089bdab541f73dead37568b59dabb5f42364df53bbfbaa55096f"
+    sui client ptb \
+        --move-call "$PACKAGE_ID::treasury::transfer_from_coin" \
+            "<$BRIDGE_TOKEN_TYPE>" \
+            @"$TREASURY_ID" \
+            @"$RECEIVER" \
+            @"$FROM_COIN_CAP" \
+            @"$COIN_TO_USE" \
+        --json > transfer_token_out.json
+
+    echo "TX output saved to transfer_token_out.json"
+}
+
+function test_bridge() {
+    sui client ptb \
+        --move-call "0x9e23e505f4af2879b1e38e5215fa131fab650c8462f3f189e945eeaf3b1c8e92::bridge::get_relayers" \
+            @"0x044cef371926b5e4d75f825135b77f2c4facbe91d3613c318ddaab7fd97c1153" \
+        --dev-inspect \
+        --json > bridge.json
 }
 
 
