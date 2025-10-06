@@ -1,15 +1,15 @@
 module locked_token::bridge_token;
 
 use locked_token::treasury;
+use locked_token::upgrade_service_token;
 use sui::coin;
 use sui::token;
-use sui_extensions::upgrade_service;
 
 public struct BRIDGE_TOKEN has drop {}
 
 #[allow(lint(share_owned))]
 fun init(witness: BRIDGE_TOKEN, ctx: &mut TxContext) {
-    let (upgrade_service, witness) = upgrade_service::new(
+    let (upgrade_service_token, witness) = upgrade_service_token::new(
         witness,
         ctx.sender(),
         ctx,
@@ -40,7 +40,7 @@ fun init(witness: BRIDGE_TOKEN, ctx: &mut TxContext) {
 
     policy.share_policy();
     transfer::public_share_object(t);
-    transfer::public_share_object(upgrade_service);
+    transfer::public_share_object(upgrade_service_token);
 }
 
 #[test_only]
