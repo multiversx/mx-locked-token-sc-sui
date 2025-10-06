@@ -55,9 +55,12 @@ echo
 
 GAS_BUDGET_DEFAULT=100000000
 
+#######################################################
+################### MINT TOKENS #######################
+#######################################################
 function mint_tokens() {
-    local AMOUNT=10000000000000000
-    local RECEIVER="0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e"
+    local AMOUNT=40000000000000000
+    local RECEIVER="0xde91225b70964422bbaea44f2b77bf76e962eb7b1607039783bd2af31e96ce74"
     sui client ptb \
         --move-call "${PACKAGE_ID}::treasury::mint_coin_to_receiver" \
             "<$BRIDGE_TOKEN_TYPE>" \
@@ -82,8 +85,12 @@ function mint_tokens() {
     fi
 }
 
+
+#######################################################
+#################### FROM COIN ########################
+#######################################################
 function from_coin() {
-    local RECEIVER="0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e"
+    local RECEIVER="0xde91225b70964422bbaea44f2b77bf76e962eb7b1607039783bd2af31e96ce74"
     sui client ptb \
         --move-call "$PACKAGE_ID::treasury::transfer_from_coin_cap" \
             "<$BRIDGE_TOKEN_TYPE>" \
@@ -107,8 +114,11 @@ function from_coin() {
     fi
 }
 
+#######################################################
+##################### TO COIN #########################
+#######################################################
 function to_coin() {
-    local RECEIVER="0x5196874c7677de5ea6b7c04ff0fcc6b090c662747ffd8cc3241c98c6f48a1dfa"
+    local RECEIVER="0xde91225b70964422bbaea44f2b77bf76e962eb7b1607039783bd2af31e96ce74"
     sui client ptb \
         --move-call "$PACKAGE_ID::treasury::transfer_to_coin_cap" \
             "<$BRIDGE_TOKEN_TYPE>" \
