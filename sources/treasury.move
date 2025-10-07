@@ -1,7 +1,7 @@
 module locked_token::treasury;
 
 use locked_token::lk_roles::{Self, Roles};
-use locked_token::version_control::{Self, assert_object_version_is_compatible_with_package};
+use locked_token::token_version_control::{Self, assert_object_version_is_compatible_with_package};
 use std::u64::{min, max};
 use sui::coin::{Self, TreasuryCap};
 use sui::dynamic_object_field as dof;
@@ -76,7 +76,7 @@ public fun new<T>(
         id: object::new(ctx),
         roles,
         active_authorizations: table::new(ctx),
-        compatible_versions: vec_set::singleton(version_control::current_version()),
+        compatible_versions: vec_set::singleton(token_version_control::current_version()),
     };
 
     dof::add(&mut treasury.id, TreasuryCapKey {}, treasury_cap);
@@ -139,7 +139,7 @@ public fun revoke_authorization<T>(treasury: &mut Treasury<T>, cap_id: ID, ctx: 
     assert!(treasury.roles.owner() == ctx.sender(), ENotOwner);
     assert!(table::contains(&treasury.active_authorizations, cap_id), EAuthorizationDoesNotExist);
 
-    let _ = table::remove(&mut treasury.active_authorizations, cap_id); 
+    let _ = table::remove(&mut treasury.active_authorizations, cap_id);
 }
 
 public fun mint_coin_to_receiver<T>(
@@ -261,9 +261,9 @@ public fun start_migration<T>(treasury: &mut Treasury<T>, ctx: &TxContext) {
     assert!(treasury.compatible_versions.size() == 1, EMigrationStarted);
 
     let active_version = treasury.compatible_versions.keys()[0];
-    assert!(active_version < version_control::current_version(), EObjectMigrated);
+    assert!(active_version < token_version_control::current_version(), EObjectMigrated);
 
-    treasury.compatible_versions.insert(version_control::current_version());
+    treasury.compatible_versions.insert(token_version_control::current_version());
 
     event::emit(MigrationStarted<T> {
         compatible_versions: *treasury.compatible_versions.keys(),
@@ -280,7 +280,7 @@ public fun abort_migration<T>(treasury: &mut Treasury<T>, ctx: &TxContext) {
         treasury.compatible_versions.keys()[0],
         treasury.compatible_versions.keys()[1],
     );
-    assert!(pending_version == version_control::current_version(), ENotPendingVersion);
+    assert!(pending_version == token_version_control::current_version(), ENotPendingVersion);
 
     treasury.compatible_versions.remove(&pending_version);
 
@@ -301,7 +301,7 @@ public fun complete_migration<T>(treasury: &mut Treasury<T>, ctx: &TxContext) {
     );
     let (active_version, pending_version) = (min(version_a, version_b), max(version_a, version_b));
 
-    assert!(pending_version == version_control::current_version(), ENotPendingVersion);
+    assert!(pending_version == token_version_control::current_version(), ENotPendingVersion);
 
     treasury.compatible_versions.remove(&active_version);
 

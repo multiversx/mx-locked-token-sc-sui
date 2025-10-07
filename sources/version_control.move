@@ -1,4 +1,4 @@
-module locked_token::version_control;
+module locked_token::token_version_control;
 
 use sui::vec_set::VecSet;
 
