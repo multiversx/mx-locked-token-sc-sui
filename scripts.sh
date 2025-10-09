@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-JSON_FILE="test_testnet.json"       # publish output: sui client publish ... > test_testnet.json
-OUT_FILE="launch_out.json"           # where to write the launch tx result (json)
+JSON_FILE="mainnet-crc.json"       # publish output: sui client publish ... > test_testnet.json
+OUT_FILE="launch_out_m1.json"           # where to write the launch tx result (json)
 
 if ! command -v jq >/dev/null 2>&1; then
   echo "jq is required. Install jq and retry." >&2
@@ -56,8 +56,8 @@ echo
 GAS_BUDGET_DEFAULT=100000000
 
 function mint_tokens() {
-    local AMOUNT=10000000000000000
-    local RECEIVER="0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e"
+    local AMOUNT=200000000000000
+    local RECEIVER="0x5196874c7677de5ea6b7c04ff0fcc6b090c662747ffd8cc3241c98c6f48a1dfa"
     sui client ptb \
         --move-call "${PACKAGE_ID}::treasury::mint_coin_to_receiver" \
             "<$BRIDGE_TOKEN_TYPE>" \
@@ -65,45 +65,45 @@ function mint_tokens() {
             $AMOUNT \
             @"$RECEIVER" \
         --json \
-        > mint_out.json
+        > mint_out_crc_t1.json
 
-    echo "TX output saved to mint_out.json"
+    echo "TX output saved to mint_out_crc_t1.json"
 
     # 7) Try to surface a created Coin<T>
     local COIN_TY="0x2::coin::Coin<${BRIDGE_TOKEN_TYPE}>"
     local NEW_COIN_ID
     NEW_COIN_ID="$(jq -r --arg T "$COIN_TY" '
         .objectChanges[] | select(.type=="created" and .objectType==$T) | .objectId
-    ' mint_out.json | head -n1)"
+    ' mint_out_crc_t1.json | head -n1)"
     if [[ -n "$NEW_COIN_ID" && "$NEW_COIN_ID" != "null" ]]; then
         echo "Minted coin: $NEW_COIN_ID"
     else
-        echo "Mint done (coin may have merged). Inspect mint_out.json."
+        echo "Mint done (coin may have merged). Inspect mint_out_crc_t1.json."
     fi
 }
 
 function from_coin() {
-    local RECEIVER="0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e"
+    local RECEIVER="0x5196874c7677de5ea6b7c04ff0fcc6b090c662747ffd8cc3241c98c6f48a1dfa"
     sui client ptb \
         --move-call "$PACKAGE_ID::treasury::transfer_from_coin_cap" \
             "<$BRIDGE_TOKEN_TYPE>" \
             @"$TREASURY_ID" \
             @"$RECEIVER" \
-        --json > grant_from_cap_out.json
+        --json > grant_from_cap_out_t1.json
 
-    echo "TX output saved to grant_from_cap_out.json"
+    echo "TX output saved to grant_from_cap_out_t1.json"
 
     # 5) Surface the created cap id (if visible in changes)
     local CAP_TY="${PACKAGE_ID}::treasury::FromCoinCap<${BRIDGE_TOKEN_TYPE}>"
     local CAP_ID
     CAP_ID="$(jq -r --arg T "$CAP_TY" '
         .objectChanges[] | select(.type=="created" and .objectType==$T) | .objectId
-    ' grant_from_cap_out.json | head -n1)"
+    ' grant_from_cap_out_t1.json | head -n1)"
 
     if [[ -n "$CAP_ID" && "$CAP_ID" != "null" ]]; then
         echo "Granted FromCoinCap id: $CAP_ID"
     else
-        echo "Grant done (cap may not show as 'created' if it existed/merged). Inspect grant_from_cap_out.json."
+        echo "Grant done (cap may not show as 'created' if it existed/merged). Inspect grant_from_cap_out_t1.json."
     fi
 }
 
@@ -114,21 +114,21 @@ function to_coin() {
             "<$BRIDGE_TOKEN_TYPE>" \
             @"$TREASURY_ID" \
             @"$RECEIVER" \
-        --json > grant_to_cap_out.json
+        --json > grant_to_cap_out_t1.json
 
-    echo "TX output saved to grant_to_cap_out.json"
+    echo "TX output saved to grant_to_cap_out_t1.json"
 
     # 5) Surface the created cap id (if visible in changes)
     local CAP_TY="${PACKAGE_ID}::treasury::ToCoinCap<${BRIDGE_TOKEN_TYPE}>"
     local CAP_ID
     CAP_ID="$(jq -r --arg T "$CAP_TY" '
         .objectChanges[] | select(.type=="created" and .objectType==$T) | .objectId
-    ' grant_to_cap_out.json | head -n1)"
+    ' grant_to_cap_out_t1.json | head -n1)"
 
     if [[ -n "$CAP_ID" && "$CAP_ID" != "null" ]]; then
         echo "Granted ToCoinCap id: $CAP_ID"
     else
-        echo "Grant done (cap may not show as 'created' if it existed/merged). Inspect grant_to_cap_out.json."
+        echo "Grant done (cap may not show as 'created' if it existed/merged). Inspect grant_to_cap_out_t1.json."
     fi
 }
 
