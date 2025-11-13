@@ -18,8 +18,8 @@ fun init(witness: BRIDGE_TOKEN, ctx: &mut TxContext) {
     let (treasury_cap, metadata) = coin::create_currency<BRIDGE_TOKEN>(
         witness,
         6,
-        b"LKXMN",
-        b"LKXMN",
+        b"LXMN",
+        b"LXMN",
         b"Locked representation of 0x97c7571f4406cdd7a95f3027075ab80d3e9c937c2a567690d31e14ab1872ccee::xmn::XMN",
         option::none(),
         ctx,
