@@ -1,0 +1,45 @@
+{
+  "mainnet": {
+    "rpc": "https://fullnode.mainnet.sui.io:443",
+    "tokens": {
+      "XMN": {
+        "PackageId": "",
+        "CoinType": ""
+      },
+      "BridgeToken": {
+        "PackageId": "",
+        "CoinType": ""
+      }
+    }
+  },
+  "testnet": {
+    "rpc": "https://fullnode.testnet.sui.io:443",
+    "tokens": {
+      "XMN": {
+        "PackageId": "",
+        "CoinType": ""
+      },
+      "BridgeToken": {
+        "PackageId": "",
+        "CoinType": ""
+      }
+    }
+  },
+  "devnet": {
+    "rpc": "https://fullnode.devnet.sui.io:443",
+    "tokens": {
+      "XMN": {
+        "PackageId": "",
+        "CoinType": ""
+      },
+      "BXMN": {
+        "PackageId": "",
+        "CoinType": ""
+      },
+      "LXMN": {
+        "PackageId": "",
+        "CoinType": ""
+      }
+    }
+  }
+}

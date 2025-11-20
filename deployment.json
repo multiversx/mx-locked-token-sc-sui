@@ -1,0 +1,41 @@
+{
+  "testnet": {
+    "deployments": [
+      {
+        "id": 1,
+        "createdAt": "2025-11-20T12:16:02.728Z",
+        "active": true,
+        "Package": "0x232f08acc3d897f67088252132167b3d9a7346bd411baf8ecaa1387d58234265",
+        "Objects": {
+          "Field": "0x57117c5a29d83aa9d7f5a9fa4ef895645872aa569d3d6d72f05431389987bfde",
+          "TokenPolicy": "0x09277bc103f622cdcfd59a7422ec1b7cce20c1d348a2ef74d9481d11ceed7a1f",
+          "TreasuryCap": "0x4bd828fb5881aa8825deded2c8ed779eafa8897b47d612fd661d88832ba0a8b5",
+          "UpgradeCap": "0x92facdf4057c522db29e3fdadfd87f9996f7c1dd3f0144c7f357266d78edd29f",
+          "CoinMetadata": "0x9b5860774b48f104624243cae687bbb766e3646904e5153db57c6cbbec42d1ed",
+          "Treasury": "0xaa0836e951b52932c81cd44bc7943c3e276948f60bc0b6fb31387eb965007a37",
+          "UpgradeService": "0xea450f80ab748391270b5a1582a943304ec9ce0fde08d5d0d67d2a1b10499140",
+          "TokenPolicyCap": "0xf2533ff03e94b38d7cde1f7e7b6c2d3baf855d1ef51d87740b7fa7d8a75ae9d1"
+        },
+        "Operators": {
+          "Admin": "0x69051698845a1beea0472a234f073fad981e4db72b6690c0970a902e6f548524"
+        },
+        "digest": "3LQftHRJETgNRDSQzhxtpeLZq9ArTJ26Lq8FTLgR5d1h",
+        "lastUpgrade": {
+          "previousPackage": "0x2b6fe21a4e6da9073104762af9202dedfa56e3d28aa76bcd87dad4698136f837",
+          "upgradedAt": "2025-11-20T13:08:04.643Z",
+          "digest": "GTQ6zUy6VfZ1ffVHvmYnKwWh2zL8YgKLw35Ms8p7jxL6"
+        },
+        "Capabilities": {
+          "ToCoinCap": "0x523a1efaba92024f68e99ea5361c8f51de8b7e66cf11ea3df85facacd4f2cadd",
+          "FromCoinCap": "0x6e55664ccd66d3d3800cbeee0a92005df051eebbbe61063883a4a02eebfa9ec1"
+        }
+      }
+    ]
+  },
+  "mainnet": {
+    "deployments": []
+  },
+  "devnet": {
+    "deployments": []
+  }
+}
