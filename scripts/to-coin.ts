@@ -30,7 +30,7 @@ async function grantToCoinCap() {
   const bridgeTokenType = `${packageId}::bridge_token::BRIDGE_TOKEN`;
 
   const RECEIVER =
-    "0x69051698845a1beea0472a234f073fad981e4db72b6690c0970a902e6f548524";
+    "0xde91225b70964422bbaea44f2b77bf76e962eb7b1607039783bd2af31e96ce74";
 
   console.log("\n=== GRANTING TO_COIN_CAP ===");
   console.log(`Package:  ${packageId}`);

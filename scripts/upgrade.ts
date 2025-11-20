@@ -10,6 +10,83 @@ import {
   validateTransactionSuccess,
 } from "@/mx-bridge-typescript/src/utils";
 
+/**
+ * Update Move.lock file after an upgrade
+ * Keeps original-published-id, updates latest-published-id, increments version
+ */
+function updateMoveLockForUpgrade(
+  pkgPath: string,
+  network: string,
+  newPackageId: string
+): void {
+  const moveLockPath = path.join(pkgPath, "Move.lock");
+
+  if (!fs.existsSync(moveLockPath)) {
+    console.warn("Move.lock not found, skipping update");
+    return;
+  }
+
+  let content = fs.readFileSync(moveLockPath, "utf-8");
+  const lines = content.split("\n");
+
+  let inTargetEnv = false;
+  let currentVersion = 1;
+
+  // First pass: find current version
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    if (line === `[env.${network}]`) {
+      inTargetEnv = true;
+      continue;
+    }
+
+    if (inTargetEnv) {
+      if (line.startsWith("[")) {
+        break;
+      }
+
+      if (line.startsWith("published-version")) {
+        const match = line.match(/=\s*"?(\d+)"?/);
+        if (match) currentVersion = parseInt(match[1], 10);
+      }
+    }
+  }
+
+  // Second pass: update values
+  inTargetEnv = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    if (line === `[env.${network}]`) {
+      inTargetEnv = true;
+      continue;
+    }
+
+    if (inTargetEnv) {
+      if (line.startsWith("[")) {
+        inTargetEnv = false;
+        continue;
+      }
+
+      // Keep original-published-id unchanged
+
+      if (line.startsWith("latest-published-id")) {
+        lines[i] = `latest-published-id = "${newPackageId}"`;
+      }
+
+      if (line.startsWith("published-version")) {
+        lines[i] = `published-version = "${currentVersion + 1}"`;
+      }
+    }
+  }
+
+  fs.writeFileSync(moveLockPath, lines.join("\n"), "utf-8");
+  console.log(
+    `Updated Move.lock: version ${currentVersion + 1}, package ${newPackageId}`
+  );
+}
+
 async function prepareUpgrade() {
   const deployerAddress = ADMIN.getPublicKey().toSuiAddress();
   console.log(`Deployer: ${deployerAddress}`);
@@ -115,6 +192,11 @@ async function prepareUpgrade() {
       JSON.stringify(allDeployments, null, 2),
       "utf-8"
     );
+
+    // Update Move.lock with the new package ID
+    if (ENV.DEPLOY_ON) {
+      updateMoveLockForUpgrade(pkgPath, ENV.DEPLOY_ON, newPackageId);
+    }
 
     console.log(
       "\n╔═══════════════════════════════════════════════════════════╗"
