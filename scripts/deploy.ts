@@ -143,10 +143,11 @@ export async function main() {
   console.log(`Network: ${ENV.DEPLOY_ON}`);
   console.log(`Created: ${new Date(createdAt).toLocaleString()}`);
   console.log(`Package: ${Package || "N/A"}`);
-  console.log(`\nTo use this deployment in other scripts, set:`);
-  console.log(`export DEPLOYMENT_ID=${deploymentId}\n`);
 
-  console.log("Deployment saved to:", filePath);
+  console.log("\nDeployment saved to:", filePath);
+
+  console.log(`\nTo make this deployment active, run the following command:\n`);
+  console.log(`DEPLOYMENT_ID=${deploymentId} npx tsx scripts/mark-active.ts\n`);
 }
 
 if (require.main === module) {

@@ -7,7 +7,7 @@
         "active": true,
         "digest": "CwNyUfG5caKFCkSRk5ia2sQNeXiSDrrHXKgyhY7hv7Z2",
         "createdAt": "2025-11-26T10:10:57.932Z",
-        "Package": "0xb5b6867fd8e2e4d4d14ca1a41b6187febbe3fc1f2b89c1985dda76f19d013d38",
+        "Package": "0xcdcf739352f4e4682a2baa72d45edb170ab5a42104e52638e56c80b6e2913875",
         "Objects": {
           "Field": "0xdf3ca0f2cb1f936c65bedbf7e1b22c2bd71c6f58cdf9838a3b6bf3521491da81",
           "UpgradeService": "0x11e9f7305e70ed48f489a8733fbe04086d90a122290bb323691c9484ed3f5af3",
@@ -25,6 +25,11 @@
         "Capabilities": {
           "FromCoinCap": "0x072009c1fe8000cc7e2e87716e198e8cbfa4c1919ddf5cb63c824f4a67255263",
           "ToCoinCap": "0x4f2e787f47c90f28c7f26f7e0365d3f65b37951fb5275ddbcb5c751de21054db"
+        },
+        "lastUpgrade": {
+          "previousPackage": "0xb5b6867fd8e2e4d4d14ca1a41b6187febbe3fc1f2b89c1985dda76f19d013d38",
+          "upgradedAt": "2025-11-26T10:41:30.967Z",
+          "digest": "4wQV7sfdDP6nxYw2XRq9cF56yGret8W1NeGW19YiLA3i"
         }
       }
     ]
