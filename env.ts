@@ -10,7 +10,10 @@ import {
   getKeyPairFromPvtKey,
   getKeyPairFromSeed,
 } from "./mx-bridge-typescript/src/utils/keypair";
-import type { WalletScheme } from "./mx-bridge-typescript/src/clients/sui/types";
+import type {
+  BridgeTokenDeploymentInfo,
+  WalletScheme,
+} from "./mx-bridge-typescript/src/clients/sui/types";
 import { createClient } from "./mx-bridge-typescript/src/clients/sui/factory";
 import { BridgeTokenClient } from "./mx-bridge-typescript/src/clients/sui/BridgeTokenClient";
 
@@ -33,7 +36,6 @@ export const CONFIG = readJSONFile(path.join(__dirname, "config.json"))[
 const deploymentPath = path.join(__dirname, "deployment.json");
 if (!fs.existsSync(deploymentPath)) {
   const emptyDeployment = {
-    type: "bridgeToken",
     testnet: { deployments: [] },
     mainnet: { deployments: [] },
     devnet: { deployments: [] },
@@ -99,15 +101,23 @@ try {
   console.warn("Error loading deployment.json:", error);
 }
 
-export const DEPLOYMENT = deploymentData;
+export const DEPLOYMENT = deploymentData as BridgeTokenDeploymentInfo;
 
 export const ADMIN =
   ENV.DEPLOYER_KEY != "0x"
     ? getKeyPairFromPvtKey(ENV.DEPLOYER_KEY, ENV.WALLET_SCHEME)
     : getKeyPairFromSeed(ENV.DEPLOYER_PHRASE, ENV.WALLET_SCHEME);
 
+const deploymentForClient: BridgeTokenDeploymentInfo = DEPLOYMENT?.Package
+  ? DEPLOYMENT
+  : ({
+      type: "bridgeToken",
+      Package: "",
+      Objects: {},
+    } as BridgeTokenDeploymentInfo);
+
 export const SUI_CLIENT = createClient(
   CONFIG.rpc,
-  DEPLOYMENT,
+  deploymentForClient,
   ADMIN
 ) as BridgeTokenClient;

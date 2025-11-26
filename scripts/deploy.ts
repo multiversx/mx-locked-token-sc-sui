@@ -8,6 +8,7 @@ import {
   getCreatedObjectsIDs,
   readJSONFile,
   newTransactionBlock,
+  writeJSONFile,
 } from "@/mx-bridge-typescript/src/utils";
 
 /**
@@ -112,13 +113,14 @@ export async function main() {
   const createdAt = new Date().toISOString();
 
   const deploymentData = {
+    type: "bridgeToken",
     id: deploymentId,
-    createdAt,
     active: false,
+    digest: result.digest,
+    createdAt,
     Package: Package || undefined,
     Objects: restObjects,
     Operators: { Admin: deployerAddress },
-    digest: result.digest,
   };
 
   if (!allDeployments[ENV.DEPLOY_ON]) {
@@ -130,7 +132,7 @@ export async function main() {
 
   allDeployments[ENV.DEPLOY_ON].deployments.push(deploymentData);
 
-  fs.writeFileSync(filePath, JSON.stringify(allDeployments, null, 2), "utf-8");
+  writeJSONFile(allDeployments, filePath);
 
   if (Package && ENV.DEPLOY_ON) {
     updateMoveLock(pkgPath, ENV.DEPLOY_ON, Package);

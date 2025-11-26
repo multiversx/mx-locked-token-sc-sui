@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import { execSync } from "child_process";
 import { ADMIN, DEPLOYMENT, SUI_CLIENT, ENV } from "@/env";
-import { UpgradePolicy } from "@/mx-bridge-typescript/src/utils";
+import { UpgradePolicy, writeJSONFile } from "@/mx-bridge-typescript/src/utils";
 import {
   getCreatedObjectsIDs,
   newTransactionBlock,
@@ -174,11 +174,7 @@ async function main() {
       digest: result.digest,
     };
 
-    fs.writeFileSync(
-      filePath,
-      JSON.stringify(allDeployments, null, 2),
-      "utf-8"
-    );
+    writeJSONFile(allDeployments, filePath);
 
     if (ENV.DEPLOY_ON) {
       updateMoveLockForUpgrade(pkgPath, ENV.DEPLOY_ON, newPackageId);

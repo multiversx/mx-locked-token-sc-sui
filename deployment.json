@@ -2,141 +2,29 @@
   "testnet": {
     "deployments": [
       {
+        "type": "bridgeToken",
         "id": 1,
-        "createdAt": "2025-11-20T12:16:02.728Z",
-        "active": false,
-        "Package": "0x232f08acc3d897f67088252132167b3d9a7346bd411baf8ecaa1387d58234265",
-        "Objects": {
-          "Field": "0x57117c5a29d83aa9d7f5a9fa4ef895645872aa569d3d6d72f05431389987bfde",
-          "TokenPolicy": "0x09277bc103f622cdcfd59a7422ec1b7cce20c1d348a2ef74d9481d11ceed7a1f",
-          "TreasuryCap": "0x4bd828fb5881aa8825deded2c8ed779eafa8897b47d612fd661d88832ba0a8b5",
-          "UpgradeCap": "0x92facdf4057c522db29e3fdadfd87f9996f7c1dd3f0144c7f357266d78edd29f",
-          "CoinMetadata": "0x9b5860774b48f104624243cae687bbb766e3646904e5153db57c6cbbec42d1ed",
-          "Treasury": "0xaa0836e951b52932c81cd44bc7943c3e276948f60bc0b6fb31387eb965007a37",
-          "UpgradeService": "0xea450f80ab748391270b5a1582a943304ec9ce0fde08d5d0d67d2a1b10499140",
-          "TokenPolicyCap": "0xf2533ff03e94b38d7cde1f7e7b6c2d3baf855d1ef51d87740b7fa7d8a75ae9d1"
-        },
-        "Operators": {
-          "Admin": "0x69051698845a1beea0472a234f073fad981e4db72b6690c0970a902e6f548524"
-        },
-        "digest": "3LQftHRJETgNRDSQzhxtpeLZq9ArTJ26Lq8FTLgR5d1h",
-        "lastUpgrade": {
-          "previousPackage": "0x2b6fe21a4e6da9073104762af9202dedfa56e3d28aa76bcd87dad4698136f837",
-          "upgradedAt": "2025-11-20T13:08:04.643Z",
-          "digest": "GTQ6zUy6VfZ1ffVHvmYnKwWh2zL8YgKLw35Ms8p7jxL6"
-        },
-        "Capabilities": {
-          "ToCoinCap": "0x523a1efaba92024f68e99ea5361c8f51de8b7e66cf11ea3df85facacd4f2cadd",
-          "FromCoinCap": "0x6e55664ccd66d3d3800cbeee0a92005df051eebbbe61063883a4a02eebfa9ec1"
-        }
-      },
-      {
-        "id": 2,
-        "createdAt": "2025-11-20T16:19:16.859Z",
-        "active": false,
-        "Package": "0xc0c914eb08af635797bb69d1d4fdb18909b9b54ef96779ab132f099a930ba275",
-        "Objects": {
-          "TokenPolicy": "0x07af212844859b9be8215096dc2a88390bfcb746b6224dde590bad20a225e14c",
-          "UpgradeService": "0x3238bc0fdc124b2f26d09304e16e062a118becfd82ac576dd62213f3b7e6cb4d",
-          "TokenPolicyCap": "0x3703db09411821ba4eaad040e966095c780e950d42fad147c921f79b94ee7529",
-          "UpgradeCap": "0x430ffe171432bed6e22a6795084f3d6cf0cf7ed6416d26d59f810bfeb46bfac6",
-          "Treasury": "0x61ff4ab79ccbf26561d334642388c13efe8d198eec398f1470f6028125c29190",
-          "Field": "0xf0fb5cb9984772ce8a6d9fde42957c76013dbb4ca65fd7e0d7336206c6b75e66",
-          "CoinMetadata": "0x95d291a41aebac5796224c30006ffea622b32fe1878e1df58d4caf337f88f823",
-          "TreasuryCap": "0x99972f72b10aceeb2d6e9d93004944ec1a453c3be27bf68110a5b76fea39a97a"
-        },
-        "Operators": {
-          "Admin": "0x69051698845a1beea0472a234f073fad981e4db72b6690c0970a902e6f548524"
-        },
-        "digest": "E8Bm6qurix2gxehUYYG4xZZHeAejTMmLra3Nr9kANmSH"
-      },
-      {
-        "id": 3,
-        "createdAt": "2025-11-20T16:23:05.370Z",
-        "active": false,
-        "Package": "0x53b938dd763ce7f8ace3cbe1ec733f740f10f82021982dcd9689d292aa6c5cf7",
-        "Objects": {
-          "UpgradeCap": "0x00fe3963ebbf1bce66c8cbdb66c6461fe6d72390abf50aabb46cbe5bc8e1d64c",
-          "TokenPolicy": "0x76880ca666f942fd4524f1a3db81443bdb3d4352b56a099ccbd4befaf114a795",
-          "TokenPolicyCap": "0x834a8d1df61bfac32ff64f62b6d67e1cef057ccc9c10edf071abd1e7bc9262f3",
-          "UpgradeService": "0x860bcb8626bcca2b67751148ae744a57d590ce3d233ca88bb4a1a31f122b50b4",
-          "CoinMetadata": "0x8ef7d64ad3cdcb7b8c70f74e95db9a2185454ebab0da9a313e7dc58c530f68f4",
-          "Field": "0xeb13542f1164d2a9e776e27c6e31aeeb8f4b10ac7082e592a7a88719209c2677",
-          "TreasuryCap": "0xcd2b3f35ce25f83ba87cc2c4d338e874e3c51802c097d319b1b09eefa8933636",
-          "Treasury": "0xd4d563b6257115a6214d7782d58fcee4d0f19aa628735ede524aa0cbf431bd82"
-        },
-        "Operators": {
-          "Admin": "0x69051698845a1beea0472a234f073fad981e4db72b6690c0970a902e6f548524"
-        },
-        "digest": "EGNr6hFNuquz4aacT3d1iWdErPykPodNZZxJkCT1TMwA"
-      },
-      {
-        "id": 4,
-        "createdAt": "2025-11-20T16:24:58.623Z",
-        "active": false,
-        "Package": "0x4389a88d9f4c4517f87286e487825dbcf86de3bbcf9ff0a550966d106d023328",
-        "Objects": {
-          "TokenPolicyCap": "0x00f3c1fec10198ff16364ebb7236c5cc9691a3eed42470bf7812a954d9eee316",
-          "CoinMetadata": "0x418e1ed605474d4b6efa119ef770bc1cca1611841170734a9fc864dbfb3708a1",
-          "UpgradeService": "0x4e76d1deecb214efeeaee20c47dda19c62d9ff30cb090b1400025d418ead8fa2",
-          "TreasuryCap": "0x6aaf1916ed2ba75c03bb464c54fdb7375f46e17480ffa0657b889f9393bfb1f6",
-          "Treasury": "0x6bc937aeecc3fdc5eb8aea820fb690c3b582fe9a4b36322d6f5f177129fb2035",
-          "Field": "0xdc0a6d3413fe5395b1619b21b369ba2e59d98873f955fb77a14605b0bc7cde05",
-          "TokenPolicy": "0xa348dc90ef7c8bb1d210702557c54e23da7dd71b80e0d6e55d925617b4beb4a6",
-          "UpgradeCap": "0xe0e20259d27bc97d8bb33876f5c788bd7b1689a64c2261a1801dbb2808f1b9b2"
-        },
-        "Operators": {
-          "Admin": "0x69051698845a1beea0472a234f073fad981e4db72b6690c0970a902e6f548524"
-        },
-        "digest": "oL96iqrGMVXmbvTNW8M88Dqqdq9UsUjbWm8mGCZzHcy"
-      },
-      {
-        "id": 5,
-        "createdAt": "2025-11-20T16:39:47.516Z",
-        "active": false,
-        "Package": "0xa6a2f78af388e8aea7e0a014410920fbbf919294df5ccc7b1d7181d7d0d702df",
-        "Objects": {
-          "TokenPolicy": "0x04470656631db67a502d59ca8a61464ad10c77c9c357b8ea858fe0e22735f6a4",
-          "TreasuryCap": "0x25dcd697f5858bd33762e726987b5ce53c6ad2a4ff5631394c79d91f61c70038",
-          "CoinMetadata": "0x308720c40dc04eda4505253d6bf5e8e25dd211f6d9d0c67e4bff2c73439f3ba0",
-          "Treasury": "0x8bea446cbd1cdc653ff039606e753cca49692282547c9c9cc8af38cc14c2898a",
-          "TokenPolicyCap": "0xa5f10e23e7f3afae9e1a92541abf2679b02ec272103106e43618fe0f482ce48c",
-          "UpgradeService": "0xaaa9600aae237eab15432185994233575f7b217358ec5348ce0a8932518585bd",
-          "Field": "0xe4160692c2c95587ca7ee557c29da403f6879aebe51ff3abfb7edbbd1ae54a7e",
-          "UpgradeCap": "0xe3dc43d99f90bfb75b38567981092612aa865faf090a66c55ce298da70da6683"
-        },
-        "Operators": {
-          "Admin": "0x69051698845a1beea0472a234f073fad981e4db72b6690c0970a902e6f548524"
-        },
-        "digest": "CX4ajTJvGCcYjJQd2uAudHPoMJaRpLgZjs9bBVzk7ftc",
-        "Capabilities": {
-          "FromCoinCap": "0xd58904e752fcbb0ca913f6993bc81ae54239a84b40258566e2e536e6c5edd05f",
-          "ToCoinCap": "0x7d6d4404c64b026f3f0a8db8c3d2c155bd704e519eefec066c50d9bdd0195869"
-        }
-      },
-      {
-        "id": 6,
-        "createdAt": "2025-11-21T11:02:26.629Z",
         "active": true,
-        "Package": "0x1a331dc79355e84c138efc9f8b81b9bef220f7647efea47f17683381f9b3bada",
+        "digest": "CwNyUfG5caKFCkSRk5ia2sQNeXiSDrrHXKgyhY7hv7Z2",
+        "createdAt": "2025-11-26T10:10:57.932Z",
+        "Package": "0xb5b6867fd8e2e4d4d14ca1a41b6187febbe3fc1f2b89c1985dda76f19d013d38",
         "Objects": {
-          "Treasury": "0x0577a597a0cb9f9365a1184eda747fc06f4b4168e69e2866b2d041258152440a",
-          "Field": "0x9bc518d672969d4880ff61c34e990dfea2df986f4aa03c9f6fd785cab0ed5a5b",
-          "TokenPolicyCap": "0x2a4f851ee1096ca4bda0784e86f7195f3c65a391a2177ca64593584c8da3376f",
-          "TokenPolicy": "0x2c1a187eef9d5040d27701a19d277070bc946aeca456717048fb5c369cb36a6f",
-          "TreasuryCap": "0x3c18cdb054ec3daac105c39411d47479b0ac52941dc3861dc5d3596662a6f749",
-          "UpgradeService": "0x87a7c9c88787478920d379bf75d4d8ecf14db20c8a362b3b05f3ba4665787748",
-          "UpgradeCap": "0xa962da9471a99590b27cdef8a1b55bf4067e4cf61dd0746ed2d08103fe0cf5ed",
-          "CoinMetadata": "0xf2bdfeb2168e6564426eb53bcbe6af43254b37e31e87da9f0e535cfe06611961"
+          "Field": "0xdf3ca0f2cb1f936c65bedbf7e1b22c2bd71c6f58cdf9838a3b6bf3521491da81",
+          "UpgradeService": "0x11e9f7305e70ed48f489a8733fbe04086d90a122290bb323691c9484ed3f5af3",
+          "UpgradeCap": "0x5c147d17341e11b200505d8340cbb730deae284423b2e3b9a0c13bf72ed43c5a",
+          "TokenPolicy": "0x800cf642915a7f56ef2b652673457922749af6646152d3e962a7fc664af54834",
+          "Treasury": "0x81c674703c2d383e486f74a7f70d6814286bef3b8f9368be64d4babd2b153651",
+          "CoinMetadata": "0x8d65e3af5afb257455abe7bdb76af2c22554c87c010efaa8c86280348682c446",
+          "TokenPolicyCap": "0xd0306e43080419180e267df80bc77e2fce7a6f9aeb9ec4b79f829c4149b4a63f",
+          "TreasuryCap": "0xdd1a650b0996191fab1bbcd3b9c04d84d7d2fb77c0cb40389463393f0d1cb122"
         },
         "Operators": {
           "Admin": "0x69051698845a1beea0472a234f073fad981e4db72b6690c0970a902e6f548524"
         },
-        "digest": "A8kRJUcyXR93DXuUGJVPoNiEooMP9fVbzipSx14nkiP3",
-        "TokenType": "0x1a331dc79355e84c138efc9f8b81b9bef220f7647efea47f17683381f9b3bada::bridge_token::BRIDGE_TOKEN",
+        "TokenType": "0xb5b6867fd8e2e4d4d14ca1a41b6187febbe3fc1f2b89c1985dda76f19d013d38::bridge_token::BRIDGE_TOKEN",
         "Capabilities": {
-          "FromCoinCap": "0x7e09505dcee7b4e4bf916468a07e0241b486f895a6c3aec21d269fb35b50f62e",
-          "ToCoinCap": "0x1a2292ece62fb6ba458de1caf5d9ea55ca18deec3ed6bee2e4497896eb998476"
+          "FromCoinCap": "0x072009c1fe8000cc7e2e87716e198e8cbfa4c1919ddf5cb63c824f4a67255263",
+          "ToCoinCap": "0x4f2e787f47c90f28c7f26f7e0365d3f65b37951fb5275ddbcb5c751de21054db"
         }
       }
     ]
