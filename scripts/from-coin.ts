@@ -1,15 +1,21 @@
 import { ADMIN, SUI_CLIENT, DEPLOYMENT, ENV } from "@/env";
-import { Transaction } from "@mysten/sui/transactions";
-import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import {
   sleep,
   readJSONFile,
   writeJSONFile,
-  validateTransactionSuccess,
 } from "@/mx-bridge-typescript/src/utils";
 import path from "path";
 
-async function grantFromCoinCap() {
+// --- PARAMS ---
+const RECEIVER =
+  "0xde91225b70964422bbaea44f2b77bf76e962eb7b1607039783bd2af31e96ce74";
+// --------------
+
+/**
+ * Grant FROM_COIN_CAP capability to a specified receiver address
+ * Usage: DEPLOYMENT_ID=2 npx tsx scripts/from-coin.ts
+ */
+async function main() {
   if (!DEPLOYMENT.Package) {
     console.error(
       "No active deployment found. Please deploy first or mark an existing deployment as active."
@@ -27,41 +33,23 @@ async function grantFromCoinCap() {
   }
 
   const packageId = DEPLOYMENT.Package;
-  const bridgeTokenType = `${packageId}::bridge_token::BRIDGE_TOKEN`;
-
-  const RECEIVER =
-    "0xde91225b70964422bbaea44f2b77bf76e962eb7b1607039783bd2af31e96ce74";
 
   console.log("\n=== GRANTING FROM_COIN_CAP ===");
   console.log(`Package:  ${packageId}`);
   console.log(`Treasury: ${treasuryId}`);
   console.log(`Receiver: ${RECEIVER}\n`);
 
-  const tx = new Transaction();
-
-  tx.moveCall({
-    target: `${packageId}::treasury::transfer_from_coin_cap`,
-    typeArguments: [bridgeTokenType],
-    arguments: [tx.object(treasuryId), tx.pure.address(RECEIVER)],
-  });
-
-  console.log("Executing transaction...");
-  await sleep(2000);
-
-  const result = await SUI_CLIENT.signAndExecuteTransaction({
-    signer: ADMIN as unknown as Ed25519Keypair,
-    transaction: tx,
-    options: {
-      showEffects: true,
-      showObjectChanges: true,
-    },
-  });
+  const result = await SUI_CLIENT.grantFromCoinCap(RECEIVER);
 
   await sleep(2000);
 
-  validateTransactionSuccess(result);
-
+  console.log("Grant transaction successfully executed");
   console.log("Transaction digest:", result.digest);
+  console.log(
+    `View transaction: https://suiscan.xyz/${ENV.DEPLOY_ON}/tx/${result.digest}`
+  );
+
+  console.log("Fetching transaction object changes...");
 
   const createdCap = result.objectChanges?.find(
     (change: any) =>
@@ -69,7 +57,6 @@ async function grantFromCoinCap() {
       change.objectType?.includes("::treasury::FromCoinCap<")
   );
 
-  console.log("\nGrant completed!");
   if (createdCap && "objectId" in createdCap) {
     console.log(`FromCoinCap ID: ${createdCap.objectId}`);
     console.log(`Cap type: ${createdCap.objectType}`);
@@ -93,17 +80,12 @@ async function grantFromCoinCap() {
     );
   }
 
-  console.log(
-    `\nView transaction: https://suiscan.xyz/${ENV.DEPLOY_ON}/tx/${result.digest}`
-  );
+  console.log("Objects saved to deployment.json");
 }
 
-grantFromCoinCap()
-  .then(() => {
-    console.log("\nFromCoinCap grant script completed successfully");
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error("\nError during FromCoinCap grant:", error);
+if (require.main === module) {
+  main().catch((error) => {
+    console.error("Error:", error);
     process.exit(1);
   });
+}

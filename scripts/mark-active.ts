@@ -7,7 +7,7 @@ import { ENV } from "@/env";
  * Mark a specific deployment as active/official for the current network
  * Usage: DEPLOYMENT_ID=2 npx tsx scripts/mark-active.ts
  */
-async function markActive() {
+async function main() {
   const deploymentId = parseInt(process.env.DEPLOYMENT_ID || "0", 10);
   const network = ENV.DEPLOY_ON;
 
@@ -52,28 +52,13 @@ async function markActive() {
 
   fs.writeFileSync(filePath, JSON.stringify(allDeployments, null, 2), "utf-8");
 
+  console.log("\nACTIVE DEPLOYMENT UPDATED");
+  console.log(`Deployment ID: ${deploymentId}`);
+  console.log(`Network: ${network}`);
+  console.log(`Created: ${new Date(deployment.createdAt).toLocaleString()}`);
+  console.log(`Package: ${deployment.Package || "N/A"}`);
   console.log(
-    "\n╔═══════════════════════════════════════════════════════════╗"
-  );
-  console.log("║           ACTIVE DEPLOYMENT UPDATED                       ║");
-  console.log("╠═══════════════════════════════════════════════════════════╣");
-  console.log(`║  Deployment ID:  ${String(deploymentId).padEnd(39)} ║`);
-  console.log(`║  Network:        ${network.padEnd(39)} ║`);
-  console.log(
-    `║  Created:        ${new Date(deployment.createdAt)
-      .toLocaleString()
-      .padEnd(39)} ║`
-  );
-  console.log(
-    `║  Package:        ${(deployment.Package || "N/A")
-      .substring(0, 38)
-      .padEnd(39)} ║`
-  );
-  console.log(
-    "╚═══════════════════════════════════════════════════════════╝\n"
-  );
-  console.log(
-    `This deployment is now marked as the official/active deployment for ${network}.`
+    `\nThis deployment is now marked as the official/active deployment for ${network}.`
   );
   console.log(
     `Scripts using DEPLOYMENT_ID=active will now use this deployment.\n`
@@ -81,5 +66,8 @@ async function markActive() {
 }
 
 if (require.main === module) {
-  markActive();
+  main().catch((error) => {
+    console.error("Error:", error);
+    process.exit(1);
+  });
 }

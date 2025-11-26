@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
 import fs from "fs";
-import { SuiClient } from "@mysten/sui/client";
 
 import {
   readJSONFile,
@@ -11,11 +10,11 @@ import {
   getKeyPairFromPvtKey,
   getKeyPairFromSeed,
 } from "./mx-bridge-typescript/src/utils/keypair";
-import { SuiProxy } from "./mx-bridge-typescript/src/clients/sui";
+import type { WalletScheme } from "./mx-bridge-typescript/src/clients/sui/types";
+import { createClient } from "./mx-bridge-typescript/src/clients/sui/factory";
+import { BridgeTokenClient } from "./mx-bridge-typescript/src/clients/sui/BridgeTokenClient";
 
 dotenv.config({ path: path.join(__dirname, ".env") });
-
-type WalletScheme = "ED25519" | "SECP256K1" | "SECP256R1";
 
 export const ENV = {
   DEPLOY_ON: process.env.DEPLOY_ON,
@@ -32,15 +31,14 @@ export const CONFIG = readJSONFile(path.join(__dirname, "config.json"))[
 ];
 
 const deploymentPath = path.join(__dirname, "deployment.json");
-
 if (!fs.existsSync(deploymentPath)) {
   const emptyDeployment = {
+    type: "bridgeToken",
     testnet: { deployments: [] },
     mainnet: { deployments: [] },
     devnet: { deployments: [] },
   };
-  const x = writeJSONFile(emptyDeployment, deploymentPath); // TODO
-  console.log("\nx = ", x, "\n");
+  writeJSONFile(emptyDeployment, deploymentPath);
   console.log("Created empty deployment.json file");
 }
 
@@ -103,21 +101,13 @@ try {
 
 export const DEPLOYMENT = deploymentData;
 
-export const SUI_PROXY =
-  DEPLOYMENT.packageId && DEPLOYMENT.bridgeObjectId
-    ? new SuiProxy(CONFIG.rpc, DEPLOYMENT.packageId, DEPLOYMENT.bridgeObjectId)
-    : null;
-
-export const SUI_CLIENT = new SuiClient({ url: CONFIG.rpc });
-
 export const ADMIN =
   ENV.DEPLOYER_KEY != "0x"
     ? getKeyPairFromPvtKey(ENV.DEPLOYER_KEY, ENV.WALLET_SCHEME)
     : getKeyPairFromSeed(ENV.DEPLOYER_PHRASE, ENV.WALLET_SCHEME);
 
-// TODO: Define OnChainCalls and QueryChain classes
-// export const ONCHAIN_CALLS = new OnChainCalls(SUI_CLIENT, DEPLOYMENT, {
-//   signer: ADMIN,
-// });
-
-// export const QUERY_CHAIN = new QueryChain(SUI_CLIENT);
+export const SUI_CLIENT = createClient(
+  CONFIG.rpc,
+  DEPLOYMENT,
+  ADMIN
+) as BridgeTokenClient;

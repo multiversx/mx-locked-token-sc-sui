@@ -2,12 +2,11 @@ import path from "path";
 import fs from "fs";
 import { execSync } from "child_process";
 import { ADMIN, DEPLOYMENT, SUI_CLIENT, ENV } from "@/env";
-import { Transaction, UpgradePolicy } from "@mysten/sui/transactions";
-import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
+import { UpgradePolicy } from "@/mx-bridge-typescript/src/utils";
 import {
   getCreatedObjectsIDs,
+  newTransactionBlock,
   readJSONFile,
-  validateTransactionSuccess,
 } from "@/mx-bridge-typescript/src/utils";
 
 /**
@@ -32,7 +31,6 @@ function updateMoveLockForUpgrade(
   let inTargetEnv = false;
   let currentVersion = 1;
 
-  // First pass: find current version
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
 
@@ -53,7 +51,6 @@ function updateMoveLockForUpgrade(
     }
   }
 
-  // Second pass: update values
   inTargetEnv = false;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -68,9 +65,6 @@ function updateMoveLockForUpgrade(
         inTargetEnv = false;
         continue;
       }
-
-      // Keep original-published-id unchanged
-
       if (line.startsWith("latest-published-id")) {
         lines[i] = `latest-published-id = "${newPackageId}"`;
       }
@@ -87,7 +81,11 @@ function updateMoveLockForUpgrade(
   );
 }
 
-async function prepareUpgrade() {
+/**
+ * Upgrade the package for the current deployment
+ * Usage: DEPLOYMENT_ID=2 npx tsx scripts/upgrade.ts
+ */
+async function main() {
   const deployerAddress = ADMIN.getPublicKey().toSuiAddress();
   console.log(`Deployer: ${deployerAddress}`);
 
@@ -114,7 +112,7 @@ async function prepareUpgrade() {
     )
   );
 
-  const tx = new Transaction();
+  const tx = newTransactionBlock();
   const cap = tx.object(DEPLOYMENT.Objects.UpgradeCap);
 
   const ticket = tx.moveCall({
@@ -140,23 +138,12 @@ async function prepareUpgrade() {
 
   tx.setSender(deployerAddress);
 
-  const result = await SUI_CLIENT.signAndExecuteTransaction({
-    signer: ADMIN as unknown as Ed25519Keypair,
-    transaction: tx,
-    options: {
-      showEffects: true,
-      showObjectChanges: true,
-    },
-  });
-
-  validateTransactionSuccess(result);
+  const result = await SUI_CLIENT.sendTransactionReturnResult(tx);
 
   console.log("Digest:", result.digest);
-
-  if (result.effects.status.status !== "success") {
-    console.error("Upgrade transaction failed");
-    process.exit(1);
-  }
+  console.log(
+    `View transaction: https://suiscan.xyz/${ENV.DEPLOY_ON}/tx/${result.digest}`
+  );
 
   const objects = getCreatedObjectsIDs(result);
 
@@ -193,36 +180,21 @@ async function prepareUpgrade() {
       "utf-8"
     );
 
-    // Update Move.lock with the new package ID
     if (ENV.DEPLOY_ON) {
       updateMoveLockForUpgrade(pkgPath, ENV.DEPLOY_ON, newPackageId);
     }
 
-    console.log(
-      "\n╔═══════════════════════════════════════════════════════════╗"
-    );
-    console.log(
-      "║              UPGRADE SUCCESSFUL                           ║"
-    );
-    console.log(
-      "╠═══════════════════════════════════════════════════════════╣"
-    );
-    console.log(`║  Deployment ID:  ${String(DEPLOYMENT.id).padEnd(39)} ║`);
-    console.log(
-      `║  Old Package:    ${oldPackageId.substring(0, 38).padEnd(39)} ║`
-    );
-    console.log(
-      `║  New Package:    ${newPackageId.substring(0, 38).padEnd(39)} ║`
-    );
-    console.log(
-      "╚═══════════════════════════════════════════════════════════╝\n"
-    );
+    console.log("\nUPGRADE SUCCESSFUL");
+    console.log(`Deployment ID: ${DEPLOYMENT.id}`);
+    console.log(`Old Package: ${oldPackageId}`);
+    console.log(`New Package: ${newPackageId}\n`);
   } else {
     console.warn("No new package ID found in upgrade result");
   }
-
-  return result;
 }
 if (require.main === module) {
-  prepareUpgrade();
+  main().catch((error) => {
+    console.error("Error:", error);
+    process.exit(1);
+  });
 }

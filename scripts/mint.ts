@@ -1,13 +1,21 @@
 import { ADMIN, SUI_CLIENT, DEPLOYMENT, ENV } from "@/env";
-import { Transaction } from "@mysten/sui/transactions";
-import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
+import path from "path";
 import {
-  getCreatedObjectsIDs,
   sleep,
-  validateTransactionSuccess,
+  readJSONFile,
   writeJSONFile,
 } from "@/mx-bridge-typescript/src/utils";
 
+// --- PARAMS ---
+const AMOUNT = 200000000000000n;
+const RECEIVER =
+  "0xde91225b70964422bbaea44f2b77bf76e962eb7b1607039783bd2af31e96ce74";
+// --------------
+
+/**
+ * Mint a specified amount of tokens to a receiver address
+ * Usage: DEPLOYMENT_ID=2 npx tsx scripts/mint.ts
+ */
 async function mint() {
   if (!DEPLOYMENT.Package) {
     console.error(
@@ -28,45 +36,23 @@ async function mint() {
   const packageId = DEPLOYMENT.Package;
   const bridgeTokenType = `${packageId}::bridge_token::BRIDGE_TOKEN`;
 
-  const AMOUNT = 200000000000000n;
-  const RECEIVER =
-    "0xde91225b70964422bbaea44f2b77bf76e962eb7b1607039783bd2af31e96ce74";
-
   console.log("\n=== MINTING TOKENS ===");
   console.log(`Package:  ${packageId}`);
   console.log(`Treasury: ${treasuryId}`);
   console.log(`Amount:   ${AMOUNT.toString()}`);
   console.log(`Receiver: ${RECEIVER}\n`);
 
-  const tx = new Transaction();
-
-  tx.moveCall({
-    target: `${packageId}::treasury::mint_coin_to_receiver`,
-    typeArguments: [bridgeTokenType],
-    arguments: [
-      tx.object(treasuryId),
-      tx.pure.u64(AMOUNT.toString()),
-      tx.pure.address(RECEIVER),
-    ],
-  });
-
-  console.log("Executing mint transaction...");
-  await sleep(2000);
-
-  const result = await SUI_CLIENT.signAndExecuteTransaction({
-    signer: ADMIN as unknown as Ed25519Keypair,
-    transaction: tx,
-    options: {
-      showEffects: true,
-      showObjectChanges: true,
-    },
-  });
-
-  validateTransactionSuccess(result);
+  const result = await SUI_CLIENT.mintCoinToReceiver(AMOUNT, RECEIVER);
 
   await sleep(2000);
 
+  console.log("Mint transaction successfully executed");
   console.log("Transaction digest:", result.digest);
+  console.log(
+    `View transaction: https://suiscan.xyz/${ENV.DEPLOY_ON}/tx/${result.digest}`
+  );
+
+  console.log("Fetching transaction object changes...");
 
   const createdCoin = result.objectChanges?.find(
     (change: any) =>
@@ -74,27 +60,50 @@ async function mint() {
       change.objectType?.startsWith("0x2::coin::Coin<")
   );
 
-  console.log("\nMint completed!");
   if (createdCoin && "objectId" in createdCoin) {
-    console.log(`Minted coin: ${createdCoin.objectId}`);
-    console.log(`Coin type: ${createdCoin.objectType}`);
+    const createdCoinAny = createdCoin as any;
+    console.log(`Minted coin: ${createdCoinAny.objectId}`);
+    console.log(`Coin type: ${createdCoinAny.objectType}`);
   } else {
     console.log(
       "Tokens merged with existing balance (no new coin object created)"
     );
   }
 
-  console.log(
-    `\nView transaction: https://suiscan.xyz/${ENV.DEPLOY_ON}/tx/${result.digest}`
-  );
+  try {
+    const outputPath = path.join(path.resolve(__dirname), "../deployment.json");
+    const allDeployments = readJSONFile(outputPath);
+    const network = ENV.DEPLOY_ON;
+    if (
+      network &&
+      allDeployments[network] &&
+      Array.isArray(allDeployments[network].deployments)
+    ) {
+      const target = allDeployments[network].deployments.find(
+        (d: any) => d.id === DEPLOYMENT.id
+      );
+      if (target) {
+        const coinTypeString = (createdCoin as any)?.objectType || null;
+        if (coinTypeString) {
+          const match = coinTypeString.match(/0x2::coin::Coin<(.+)>$/);
+          const tokenType = match ? match[1] : coinTypeString;
+          target.TokenType = tokenType;
+          writeJSONFile(allDeployments, outputPath);
+        } else {
+          console.warn("No created coin objectType available to save.");
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("Failed to persist token type to deployment.json", e);
+  }
+
+  console.log("Objects saved to deployment.json");
 }
 
-mint()
-  .then(() => {
-    console.log("\nMint script completed successfully");
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error("\nError during mint:", error);
+if (require.main === module) {
+  mint().catch((error) => {
+    console.error("Error:", error);
     process.exit(1);
   });
+}

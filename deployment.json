@@ -93,7 +93,7 @@
       {
         "id": 5,
         "createdAt": "2025-11-20T16:39:47.516Z",
-        "active": true,
+        "active": false,
         "Package": "0xa6a2f78af388e8aea7e0a014410920fbbf919294df5ccc7b1d7181d7d0d702df",
         "Objects": {
           "TokenPolicy": "0x04470656631db67a502d59ca8a61464ad10c77c9c357b8ea858fe0e22735f6a4",
@@ -111,7 +111,32 @@
         "digest": "CX4ajTJvGCcYjJQd2uAudHPoMJaRpLgZjs9bBVzk7ftc",
         "Capabilities": {
           "FromCoinCap": "0xd58904e752fcbb0ca913f6993bc81ae54239a84b40258566e2e536e6c5edd05f",
-          "ToCoinCap": "0xd7c13a1da326199de5e4ffefbac7493f0138d1ff56952112ad4e7a165b4551a1"
+          "ToCoinCap": "0x7d6d4404c64b026f3f0a8db8c3d2c155bd704e519eefec066c50d9bdd0195869"
+        }
+      },
+      {
+        "id": 6,
+        "createdAt": "2025-11-21T11:02:26.629Z",
+        "active": true,
+        "Package": "0x1a331dc79355e84c138efc9f8b81b9bef220f7647efea47f17683381f9b3bada",
+        "Objects": {
+          "Treasury": "0x0577a597a0cb9f9365a1184eda747fc06f4b4168e69e2866b2d041258152440a",
+          "Field": "0x9bc518d672969d4880ff61c34e990dfea2df986f4aa03c9f6fd785cab0ed5a5b",
+          "TokenPolicyCap": "0x2a4f851ee1096ca4bda0784e86f7195f3c65a391a2177ca64593584c8da3376f",
+          "TokenPolicy": "0x2c1a187eef9d5040d27701a19d277070bc946aeca456717048fb5c369cb36a6f",
+          "TreasuryCap": "0x3c18cdb054ec3daac105c39411d47479b0ac52941dc3861dc5d3596662a6f749",
+          "UpgradeService": "0x87a7c9c88787478920d379bf75d4d8ecf14db20c8a362b3b05f3ba4665787748",
+          "UpgradeCap": "0xa962da9471a99590b27cdef8a1b55bf4067e4cf61dd0746ed2d08103fe0cf5ed",
+          "CoinMetadata": "0xf2bdfeb2168e6564426eb53bcbe6af43254b37e31e87da9f0e535cfe06611961"
+        },
+        "Operators": {
+          "Admin": "0x69051698845a1beea0472a234f073fad981e4db72b6690c0970a902e6f548524"
+        },
+        "digest": "A8kRJUcyXR93DXuUGJVPoNiEooMP9fVbzipSx14nkiP3",
+        "TokenType": "0x1a331dc79355e84c138efc9f8b81b9bef220f7647efea47f17683381f9b3bada::bridge_token::BRIDGE_TOKEN",
+        "Capabilities": {
+          "FromCoinCap": "0x7e09505dcee7b4e4bf916468a07e0241b486f895a6c3aec21d269fb35b50f62e",
+          "ToCoinCap": "0x1a2292ece62fb6ba458de1caf5d9ea55ca18deec3ed6bee2e4497896eb998476"
         }
       }
     ]

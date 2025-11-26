@@ -2,13 +2,12 @@ import path from "path";
 import fs from "fs";
 import { execSync } from "child_process";
 import { ADMIN, SUI_CLIENT, ENV } from "@/env";
-import { Transaction } from "@mysten/sui/transactions";
-import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
+
 import {
   sleep,
   getCreatedObjectsIDs,
   readJSONFile,
-  validateTransactionSuccess,
+  newTransactionBlock,
 } from "@/mx-bridge-typescript/src/utils";
 
 /**
@@ -64,7 +63,7 @@ function updateMoveLock(
   console.log(`Updated Move.lock: fresh deployment, package ${packageId}`);
 }
 
-export async function deploy() {
+export async function main() {
   const deployerAddress = ADMIN.getPublicKey().toSuiAddress();
   console.log(`Deployer: ${deployerAddress}`);
 
@@ -79,7 +78,7 @@ export async function deploy() {
     )
   );
 
-  const tx = new Transaction();
+  const tx = newTransactionBlock();
   const [upgradeCap] = tx.publish({ modules, dependencies });
 
   tx.transferObjects([upgradeCap], tx.pure.address(deployerAddress));
@@ -87,20 +86,16 @@ export async function deploy() {
   console.log("Deploying");
   await sleep(3000);
 
-  const result = await SUI_CLIENT.signAndExecuteTransaction({
-    signer: ADMIN as unknown as Ed25519Keypair,
-    transaction: tx,
-    options: {
-      showEffects: true,
-      showObjectChanges: true,
-    },
-  });
+  const result = await SUI_CLIENT.sendTransactionReturnResult(tx);
 
   await sleep(3000);
 
-  validateTransactionSuccess(result);
-
   console.log("Transaction digest:", result.digest);
+  console.log(
+    `View transaction: https://suiscan.xyz/${ENV.DEPLOY_ON}/tx/${result.digest}`
+  );
+
+  console.log("Saving deployment data...");
 
   const objects = getCreatedObjectsIDs(result);
 
@@ -137,35 +132,24 @@ export async function deploy() {
 
   fs.writeFileSync(filePath, JSON.stringify(allDeployments, null, 2), "utf-8");
 
-  // Update Move.lock with the new package ID
   if (Package && ENV.DEPLOY_ON) {
     updateMoveLock(pkgPath, ENV.DEPLOY_ON, Package);
   }
 
-  console.log(
-    "\n╔═══════════════════════════════════════════════════════════╗"
-  );
-  console.log("║                  DEPLOYMENT SUCCESSFUL                    ║");
-  console.log("╠═══════════════════════════════════════════════════════════╣");
-  console.log(`║  Deployment ID:  ${String(deploymentId).padEnd(39)} ║`);
-  console.log(`║  Network:        ${ENV.DEPLOY_ON?.padEnd(39)} ║`);
-  console.log(
-    `║  Created:        ${new Date(createdAt).toLocaleString().padEnd(39)} ║`
-  );
-  console.log(
-    `║  Package:        ${(Package || "N/A").substring(0, 38).padEnd(39)} ║`
-  );
-  console.log(
-    "╚═══════════════════════════════════════════════════════════╝\n"
-  );
+  console.log("\nDEPLOYMENT SUCCESSFUL");
+  console.log(`Deployment ID: ${deploymentId}`);
+  console.log(`Network: ${ENV.DEPLOY_ON}`);
+  console.log(`Created: ${new Date(createdAt).toLocaleString()}`);
+  console.log(`Package: ${Package || "N/A"}`);
   console.log(`\nTo use this deployment in other scripts, set:`);
-  console.log(`  export DEPLOYMENT_ID=${deploymentId}\n`);
+  console.log(`export DEPLOYMENT_ID=${deploymentId}\n`);
 
   console.log("Deployment saved to:", filePath);
-
-  return result;
 }
 
 if (require.main === module) {
-  deploy();
+  main().catch((error) => {
+    console.error("Error:", error);
+    process.exit(1);
+  });
 }
