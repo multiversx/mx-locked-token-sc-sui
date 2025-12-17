@@ -1,0 +1,11 @@
+{
+  "mainnet": {
+    "rpc": "https://fullnode.mainnet.sui.io:443"
+  },
+  "testnet": {
+    "rpc": "https://fullnode.testnet.sui.io:443"
+  },
+  "devnet": {
+    "rpc": "https://fullnode.devnet.sui.io:443"
+  }
+}
