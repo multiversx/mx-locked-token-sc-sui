@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-JSON_FILE="mainnet-crc.json"       # publish output: sui client publish ... > test_testnet.json
+JSON_FILE="test_testnet.json"       # publish output: sui client publish ... > test_testnet.json
 OUT_FILE="launch_out_m1.json"           # where to write the launch tx result (json)
 
 if ! command -v jq >/dev/null 2>&1; then
@@ -57,7 +57,7 @@ GAS_BUDGET_DEFAULT=100000000
 
 function mint_tokens() {
     local AMOUNT=200000000000000
-    local RECEIVER="0x5196874c7677de5ea6b7c04ff0fcc6b090c662747ffd8cc3241c98c6f48a1dfa"
+    local RECEIVER="0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e"
     sui client ptb \
         --move-call "${PACKAGE_ID}::treasury::mint_coin_to_receiver" \
             "<$BRIDGE_TOKEN_TYPE>" \
@@ -83,7 +83,7 @@ function mint_tokens() {
 }
 
 function from_coin() {
-    local RECEIVER="0x5196874c7677de5ea6b7c04ff0fcc6b090c662747ffd8cc3241c98c6f48a1dfa"
+    local RECEIVER="0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e"
     sui client ptb \
         --move-call "$PACKAGE_ID::treasury::transfer_from_coin_cap" \
             "<$BRIDGE_TOKEN_TYPE>" \
@@ -108,7 +108,7 @@ function from_coin() {
 }
 
 function to_coin() {
-    local RECEIVER="0x5196874c7677de5ea6b7c04ff0fcc6b090c662747ffd8cc3241c98c6f48a1dfa"
+    local RECEIVER="0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e"
     sui client ptb \
         --move-call "$PACKAGE_ID::treasury::transfer_to_coin_cap" \
             "<$BRIDGE_TOKEN_TYPE>" \
